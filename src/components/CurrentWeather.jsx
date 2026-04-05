@@ -1,9 +1,16 @@
+const bearings = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+function formatTime(ts) {
+  return new Date(ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export default function CurrentWeather({ data, unit }) {
   const { name, main, weather, wind, sys, visibility } = data;
   const icon = weather[0].icon;
   const description = weather[0].description;
   const unitLabel = unit === 'metric' ? '°C' : '°F';
   const windUnit = unit === 'metric' ? 'm/s' : 'mph';
+  const bearing = bearings[Math.round(wind.deg / 45) % 8];
 
   return (
     <div className="text-white text-center">
@@ -27,13 +34,15 @@ export default function CurrentWeather({ data, unit }) {
         Feels like {Math.round(main.feels_like)}{unitLabel}
       </p>
 
-      <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
+      <div className="grid grid-cols-4 gap-3 max-w-sm mx-auto">
         <StatCard label="Humidity" value={`${main.humidity}%`} icon="💧" />
-        <StatCard label="Wind" value={`${Math.round(wind.speed)} ${windUnit}`} icon="💨" />
+        <StatCard label="Wind" value={`${Math.round(wind.speed)} ${windUnit} ${bearing}`} icon="💨" />
         <StatCard label="Visibility" value={`${(visibility / 1000).toFixed(1)} km`} icon="👁" />
+        <StatCard label="Pressure" value={`${main.pressure} hPa`} icon="🌡" />
         <StatCard label="High" value={`${Math.round(main.temp_max)}${unitLabel}`} icon="🔺" />
         <StatCard label="Low" value={`${Math.round(main.temp_min)}${unitLabel}`} icon="🔻" />
-        <StatCard label="Pressure" value={`${main.pressure} hPa`} icon="🌡" />
+        <StatCard label="Sunrise" value={formatTime(sys.sunrise)} icon="🌅" />
+        <StatCard label="Sunset" value={formatTime(sys.sunset)} icon="🌇" />
       </div>
     </div>
   );

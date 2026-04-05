@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { geocodeCity, geocodeZip } from '../services/weatherApi';
+import { useRecentSearches } from '../hooks/useRecentSearches';
 
 const ZIP_REGEX = /^\d{5}$/;
 
@@ -7,8 +8,10 @@ export default function SearchBar({ onSelect }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
   const [zipError, setZipError] = useState('');
   const debounceRef = useRef(null);
+  const { recents, addRecent, clearRecents } = useRecentSearches();
 
   useEffect(() => {
     clearTimeout(debounceRef.current);
@@ -39,12 +42,22 @@ export default function SearchBar({ onSelect }) {
   }, [query]);
 
   function handleSelect(city) {
+    const displayName = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
+    addRecent({ name: displayName, lat: city.lat, lon: city.lon });
     setQuery('');
     setSuggestions([]);
     setOpen(false);
     setZipError('');
-    onSelect(city.lat, city.lon, `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`);
+    onSelect(city.lat, city.lon, displayName);
   }
+
+  function handleRecentSelect(recent) {
+    addRecent(recent);
+    setFocused(false);
+    onSelect(recent.lat, recent.lon, recent.name);
+  }
+
+  const showRecents = focused && query.trim().length < 2 && recents.length > 0;
 
   return (
     <div className="relative w-full max-w-md">
@@ -57,6 +70,8 @@ export default function SearchBar({ onSelect }) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setTimeout(() => setFocused(false), 150)}
           placeholder="Search city or ZIP code…"
           className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-sm"
         />
@@ -69,9 +84,33 @@ export default function SearchBar({ onSelect }) {
         )}
       </div>
 
-      {/* ZIP error message */}
       {zipError && (
         <p className="mt-1.5 text-xs text-red-300 px-1">{zipError}</p>
+      )}
+
+      {showRecents && (
+        <div className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden text-gray-800 text-sm border border-white/40">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recent Searches</span>
+            <button
+              onClick={clearRecents}
+              className="text-xs text-blue-400 hover:text-blue-600 transition-colors"
+            >Clear</button>
+          </div>
+          {recents.map((recent, i) => (
+            <button
+              key={i}
+              onClick={() => handleRecentSelect(recent)}
+              className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+              </svg>
+              <span className="font-medium truncate">{recent.name}</span>
+            </button>
+          ))}
+        </div>
       )}
 
       {open && query.trim().length >= 2 && (

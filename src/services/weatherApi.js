@@ -36,3 +36,11 @@ export async function geocodeZip(zip) {
   }
   return res.json();
 }
+
+export async function getAirPollution(lat, lon) {
+  const res = await fetch(
+    `${BASE_URL}/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`
+  );
+  if (!res.ok) throw new Error('Failed to fetch air quality');
+  return res.json();
+}

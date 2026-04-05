@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getCurrentWeather, getForecast } from '../services/weatherApi';
+import { getCurrentWeather, getForecast, getAirPollution } from '../services/weatherApi';
 
 export function useWeather(lat, lon, units = 'metric') {
-  const [state, setState] = useState({ current: null, forecast: null, loading: false, error: null });
+  const [state, setState] = useState({ current: null, forecast: null, airQuality: null, loading: false, error: null });
 
   useEffect(() => {
     if (lat == null || lon == null) return;
@@ -12,13 +12,17 @@ export function useWeather(lat, lon, units = 'metric') {
     async function load() {
       setState(s => ({ ...s, loading: true, error: null }));
       try {
-        const [current, forecast] = await Promise.all([
+        const [currentResult, forecastResult, aqResult] = await Promise.allSettled([
           getCurrentWeather(lat, lon, units),
           getForecast(lat, lon, units),
+          getAirPollution(lat, lon),
         ]);
-        if (!cancelled) setState({ current, forecast, loading: false, error: null });
+        if (currentResult.status === 'rejected') throw new Error(currentResult.reason.message);
+        if (forecastResult.status === 'rejected') throw new Error(forecastResult.reason.message);
+        const airQuality = aqResult.status === 'fulfilled' ? aqResult.value : null;
+        if (!cancelled) setState({ current: currentResult.value, forecast: forecastResult.value, airQuality, loading: false, error: null });
       } catch (err) {
-        if (!cancelled) setState({ current: null, forecast: null, loading: false, error: err.message });
+        if (!cancelled) setState({ current: null, forecast: null, airQuality: null, loading: false, error: err.message });
       }
     }
 

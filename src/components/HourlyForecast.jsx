@@ -25,6 +25,7 @@ export default function HourlyForecast({ forecastData, unit }) {
                 className="w-10 h-10"
               />
               <p className="text-sm font-semibold">{Math.round(slot.main.temp)}{unitLabel}</p>
+              <p className="text-xs opacity-50">Feels {Math.round(slot.main.feels_like)}{unitLabel}</p>
               <p className="text-xs opacity-60">{slot.pop > 0 ? `${Math.round(slot.pop * 100)}%🌧` : ''}</p>
             </div>
           );

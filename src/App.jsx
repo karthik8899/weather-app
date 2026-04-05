@@ -5,6 +5,7 @@ import SearchBar from './components/SearchBar';
 import CurrentWeather from './components/CurrentWeather';
 import HourlyForecast from './components/HourlyForecast';
 import FiveDayForecast from './components/FiveDayForecast';
+import AirQuality from './components/AirQuality';
 import SkeletonLoader from './components/SkeletonLoader';
 
 export default function App() {
@@ -15,7 +16,7 @@ export default function App() {
   const lat = override?.lat ?? geo.lat;
   const lon = override?.lon ?? geo.lon;
 
-  const { current, forecast, loading, error } = useWeather(lat, lon, unit);
+  const { current, forecast, airQuality, loading, error } = useWeather(lat, lon, unit);
 
   function handleCitySelect(lat, lon, name) {
     setOverride({ lat, lon, name });
@@ -94,6 +95,7 @@ export default function App() {
         {current && !loading && (
           <>
             <CurrentWeather data={current} unit={unit} />
+            {airQuality && <AirQuality data={airQuality} />}
             {forecast && <HourlyForecast forecastData={forecast} unit={unit} />}
             {forecast && <FiveDayForecast forecastData={forecast} unit={unit} />}
           </>
