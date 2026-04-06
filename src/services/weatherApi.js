@@ -25,14 +25,14 @@ export async function geocodeCity(query) {
   return res.json();
 }
 
-/** Resolves a US 5-digit zip code to { name, lat, lon, country, zip } */
-export async function geocodeZip(zip) {
+/** Resolves a postal code + country to { name, lat, lon, country, zip } */
+export async function geocodeZip(zip, countryCode = 'US') {
   const res = await fetch(
-    `${BASE_URL}/geo/1.0/zip?zip=${encodeURIComponent(zip)},US&appid=${API_KEY}`
+    `${BASE_URL}/geo/1.0/zip?zip=${encodeURIComponent(zip)},${countryCode}&appid=${API_KEY}`
   );
   if (!res.ok) {
-    if (res.status === 404) throw new Error(`No location found for ZIP code "${zip}"`);
-    throw new Error('Failed to look up ZIP code');
+    if (res.status === 404) throw new Error(`No location found for postal code "${zip}" in ${countryCode}`);
+    throw new Error('Failed to look up postal code');
   }
   return res.json();
 }

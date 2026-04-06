@@ -7,6 +7,8 @@ import HourlyForecast from './components/HourlyForecast';
 import FiveDayForecast from './components/FiveDayForecast';
 import AirQuality from './components/AirQuality';
 import SkeletonLoader from './components/SkeletonLoader';
+import Logo from './components/Logo';
+import Footer from './components/Footer';
 
 export default function App() {
   const geo = useGeolocation();
@@ -32,16 +34,20 @@ export default function App() {
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center justify-between w-full">
             <h1 className="text-white text-2xl font-bold tracking-tight drop-shadow">🌤 Weather</h1>
-            {/* °C / °F toggle */}
-            <button
-              onClick={() => setUnit(u => u === 'metric' ? 'imperial' : 'metric')}
-              className="flex items-center gap-1 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white text-sm font-semibold rounded-full px-4 py-1.5 transition-all duration-200 shadow"
-              aria-label="Toggle temperature unit"
-            >
-              <span className={unit === 'metric' ? 'opacity-100' : 'opacity-40'}>°C</span>
-              <span className="opacity-40 mx-0.5">/</span>
-              <span className={unit === 'imperial' ? 'opacity-100' : 'opacity-40'}>°F</span>
-            </button>
+            <div className="flex items-center gap-3">
+              {/* °C / °F toggle */}
+              <button
+                onClick={() => setUnit(u => u === 'metric' ? 'imperial' : 'metric')}
+                className="flex items-center gap-1 bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/20 text-white text-sm font-semibold rounded-full px-4 py-1.5 transition-all duration-200 shadow"
+                aria-label="Toggle temperature unit"
+              >
+                <span className={unit === 'metric' ? 'opacity-100' : 'opacity-40'}>°C</span>
+                <span className="opacity-40 mx-0.5">/</span>
+                <span className={unit === 'imperial' ? 'opacity-100' : 'opacity-40'}>°F</span>
+              </button>
+              {/* 8899™ Logo */}
+              <Logo />
+            </div>
           </div>
           <SearchBar onSelect={handleCitySelect} />
 
@@ -102,9 +108,7 @@ export default function App() {
         )}
 
         {/* Footer */}
-        <p className="text-center text-white/30 text-xs pt-2">
-          Data by OpenWeatherMap
-        </p>
+        <Footer />
       </div>
     </div>
   );

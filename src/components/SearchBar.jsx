@@ -2,10 +2,36 @@ import { useState, useEffect, useRef } from 'react';
 import { geocodeCity, geocodeZip } from '../services/weatherApi';
 import { useRecentSearches } from '../hooks/useRecentSearches';
 
-const ZIP_REGEX = /^\d{5}$/;
+// Matches postal codes that are NOT purely city name text.
+// Accepts: US 5-digit (12345), UK (SW1A 1AA), CA (K1A 0B1), DE (10115), etc.
+const POSTAL_REGEX = /^[A-Z0-9][A-Z0-9\s\-]{2,9}$/i;
+
+const COUNTRIES = [
+  { code: 'US', label: '🇺🇸 US' },
+  { code: 'GB', label: '🇬🇧 GB' },
+  { code: 'CA', label: '🇨🇦 CA' },
+  { code: 'AU', label: '🇦🇺 AU' },
+  { code: 'IN', label: '🇮🇳 IN' },
+  { code: 'DE', label: '🇩🇪 DE' },
+  { code: 'FR', label: '🇫🇷 FR' },
+  { code: 'JP', label: '🇯🇵 JP' },
+  { code: 'BR', label: '🇧🇷 BR' },
+  { code: 'MX', label: '🇲🇽 MX' },
+  { code: 'IT', label: '🇮🇹 IT' },
+  { code: 'ES', label: '🇪🇸 ES' },
+  { code: 'NL', label: '🇳🇱 NL' },
+  { code: 'SE', label: '🇸🇪 SE' },
+  { code: 'NO', label: '🇳🇴 NO' },
+  { code: 'DK', label: '🇩🇰 DK' },
+  { code: 'CH', label: '🇨🇭 CH' },
+  { code: 'SG', label: '🇸🇬 SG' },
+  { code: 'NZ', label: '🇳🇿 NZ' },
+  { code: 'ZA', label: '🇿🇦 ZA' },
+];
 
 export default function SearchBar({ onSelect }) {
   const [query, setQuery] = useState('');
+  const [country, setCountry] = useState('US');
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -20,9 +46,12 @@ export default function SearchBar({ onSelect }) {
 
     debounceRef.current = setTimeout(async () => {
       setZipError('');
+      const trimmed = query.trim();
+      const looksLikePostal = POSTAL_REGEX.test(trimmed) && !/\s{2,}/.test(trimmed) && trimmed.split(' ').length <= 2;
+
       try {
-        if (ZIP_REGEX.test(query.trim())) {
-          const result = await geocodeZip(query.trim());
+        if (looksLikePostal) {
+          const result = await geocodeZip(trimmed, country);
           const city = { name: result.name, lat: result.lat, lon: result.lon, country: result.country, state: '' };
           setSuggestions([city]);
           setOpen(true);
@@ -34,12 +63,12 @@ export default function SearchBar({ onSelect }) {
       } catch (err) {
         setSuggestions([]);
         setOpen(false);
-        if (ZIP_REGEX.test(query.trim())) setZipError(err.message);
+        if (looksLikePostal) setZipError(err.message);
       }
     }, 400);
 
     return () => clearTimeout(debounceRef.current);
-  }, [query]);
+  }, [query, country]);
 
   function handleSelect(city) {
     const displayName = `${city.name}${city.state ? ', ' + city.state : ''}, ${city.country}`;
@@ -61,24 +90,39 @@ export default function SearchBar({ onSelect }) {
 
   return (
     <div className="relative w-full max-w-md">
-      <div className="flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-4 py-3 gap-2 shadow-lg transition-all focus-within:bg-white/20 focus-within:border-white/40">
+      <div className="flex items-center bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-3 py-3 gap-2 shadow-lg transition-all focus-within:bg-white/20 focus-within:border-white/40">
         <svg className="w-5 h-5 text-white/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
             d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
         </svg>
+
+        {/* Country selector */}
+        <select
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          className="bg-white/10 text-white text-xs rounded-lg border border-white/20 px-1.5 py-1 outline-none cursor-pointer hover:bg-white/20 transition-colors shrink-0"
+          aria-label="Select country for postal code search"
+        >
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code} className="bg-slate-800 text-white">
+              {c.label}
+            </option>
+          ))}
+        </select>
+
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
-          placeholder="Search city or ZIP code…"
-          className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-sm"
+          placeholder="City or postal code…"
+          className="flex-1 bg-transparent text-white placeholder-white/50 outline-none text-sm min-w-0"
         />
         {query && (
           <button
             onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); setZipError(''); }}
-            className="text-white/50 hover:text-white text-lg leading-none transition-colors"
+            className="text-white/50 hover:text-white text-lg leading-none transition-colors shrink-0"
             aria-label="Clear search"
           >✕</button>
         )}
