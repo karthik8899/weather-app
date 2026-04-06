@@ -100,11 +100,11 @@ export default function SearchBar({ onSelect }) {
         <select
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className="bg-white/10 text-white text-xs rounded-lg border border-white/20 px-1.5 py-1 outline-none cursor-pointer hover:bg-white/20 transition-colors shrink-0"
+          className="bg-white/25 text-white text-xs font-semibold rounded-lg border border-white/50 px-2 py-1.5 outline-none cursor-pointer hover:bg-white/35 transition-colors shrink-0 shadow"
           aria-label="Select country for postal code search"
         >
           {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code} className="bg-slate-800 text-white">
+            <option key={c.code} value={c.code} style={{ background: '#1e293b', color: '#fff' }}>
               {c.label}
             </option>
           ))}
