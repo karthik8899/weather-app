@@ -36,11 +36,15 @@ export default function SearchBar({ onSelect }) {
   const [open, setOpen] = useState(false);
   const [focused, setFocused] = useState(false);
   const [zipError, setZipError] = useState('');
+  const [noResults, setNoResults] = useState(false);
   const debounceRef = useRef(null);
   const { recents, addRecent, clearRecents } = useRecentSearches();
 
+  const selectedCountryLabel = COUNTRIES.find(c => c.code === country)?.label ?? country;
+
   useEffect(() => {
     clearTimeout(debounceRef.current);
+    setNoResults(false);
 
     if (query.trim().length < 3) return;
 
@@ -55,18 +59,18 @@ export default function SearchBar({ onSelect }) {
           const city = { name: result.name, lat: result.lat, lon: result.lon, country: result.country, state: '' };
           setSuggestions([city]);
           setOpen(true);
+          setNoResults(false);
         } else {
-          // Try with country filter first; fall back to global search if no results
-          let results = await geocodeCity(query, country);
-          if (results.length === 0 && country) {
-            results = await geocodeCity(query);
-          }
+          // Always filter by selected country — strict mode, no global fallback
+          const results = await geocodeCity(query, country);
           setSuggestions(results);
           setOpen(results.length > 0);
+          setNoResults(results.length === 0);
         }
       } catch (err) {
         setSuggestions([]);
         setOpen(false);
+        setNoResults(false);
         if (looksLikePostal) setZipError(err.message);
       }
     }, 400);
@@ -81,6 +85,7 @@ export default function SearchBar({ onSelect }) {
     setSuggestions([]);
     setOpen(false);
     setZipError('');
+    setNoResults(false);
     onSelect(city.lat, city.lon, displayName);
   }
 
@@ -125,7 +130,7 @@ export default function SearchBar({ onSelect }) {
         />
         {query && (
           <button
-            onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); setZipError(''); }}
+            onClick={() => { setQuery(''); setSuggestions([]); setOpen(false); setZipError(''); setNoResults(false); }}
             className="text-white/50 hover:text-white text-lg leading-none transition-colors shrink-0"
             aria-label="Clear search"
           >✕</button>
@@ -134,6 +139,12 @@ export default function SearchBar({ onSelect }) {
 
       {zipError && (
         <p className="mt-1.5 text-xs text-red-300 px-1">{zipError}</p>
+      )}
+
+      {noResults && !zipError && query.trim().length >= 3 && (
+        <p className="mt-1.5 text-xs text-white/60 px-1">
+          No cities found in {selectedCountryLabel} — try a longer name
+        </p>
       )}
 
       {showRecents && (
