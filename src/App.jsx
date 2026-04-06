@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGeolocation } from './hooks/useGeolocation';
 import { useWeather } from './hooks/useWeather';
+import { usePushNotifications } from './hooks/usePushNotifications';
 import SearchBar from './components/SearchBar';
 import CurrentWeather from './components/CurrentWeather';
 import HourlyForecast from './components/HourlyForecast';
@@ -11,6 +12,7 @@ import Footer from './components/Footer';
 
 export default function App() {
   const geo = useGeolocation();
+  usePushNotifications(); // registers for push on native, no-op on web
   const [override, setOverride] = useState(null); // { lat, lon, name }
   const [unit, setUnit] = useState('metric'); // 'metric' | 'imperial'
 
