@@ -17,9 +17,11 @@ export async function getForecast(lat, lon) {
   return res.json();
 }
 
-export async function geocodeCity(query) {
+export async function geocodeCity(query, countryCode = '') {
+  // Append country code to narrow results (e.g. "Mumbai,IN")
+  const q = countryCode ? `${query},${countryCode}` : query;
   const res = await fetch(
-    `${BASE_URL}/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${API_KEY}`
+    `${BASE_URL}/geo/1.0/direct?q=${encodeURIComponent(q)}&limit=5&appid=${API_KEY}`
   );
   if (!res.ok) throw new Error('Failed to geocode city');
   return res.json();

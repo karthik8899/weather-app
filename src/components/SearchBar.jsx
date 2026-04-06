@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { geocodeCity, geocodeZip } from '../services/weatherApi';
 import { useRecentSearches } from '../hooks/useRecentSearches';
 
-// Matches postal codes that are NOT purely city name text.
-// Accepts: US 5-digit (12345), UK (SW1A 1AA), CA (K1A 0B1), DE (10115), etc.
-const POSTAL_REGEX = /^[A-Z0-9][A-Z0-9\s\-]{2,9}$/i;
+// Postal codes always contain at least one digit — this prevents city names
+// like "Mumbai" or "London" from being mistakenly treated as postal codes.
+const POSTAL_REGEX = /^(?=.*\d)[A-Z0-9][A-Z0-9\s\-]{2,9}$/i;
 
 const COUNTRIES = [
   { code: 'US', label: '🇺🇸 US' },
@@ -56,7 +56,7 @@ export default function SearchBar({ onSelect }) {
           setSuggestions([city]);
           setOpen(true);
         } else {
-          const results = await geocodeCity(query);
+          const results = await geocodeCity(query, country);
           setSuggestions(results);
           setOpen(results.length > 0);
         }
