@@ -7,7 +7,6 @@ import HourlyForecast from './components/HourlyForecast';
 import FiveDayForecast from './components/FiveDayForecast';
 import AirQuality from './components/AirQuality';
 import SkeletonLoader from './components/SkeletonLoader';
-import Logo from './components/Logo';
 import Footer from './components/Footer';
 
 export default function App() {
@@ -45,8 +44,6 @@ export default function App() {
                 <span className="opacity-40 mx-0.5">/</span>
                 <span className={unit === 'imperial' ? 'opacity-100' : 'opacity-40'}>°F</span>
               </button>
-              {/* 8899™ Logo */}
-              <Logo />
             </div>
           </div>
           <SearchBar onSelect={handleCitySelect} />
