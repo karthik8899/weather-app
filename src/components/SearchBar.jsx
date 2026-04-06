@@ -42,7 +42,7 @@ export default function SearchBar({ onSelect }) {
   useEffect(() => {
     clearTimeout(debounceRef.current);
 
-    if (query.trim().length < 2) return;
+    if (query.trim().length < 3) return;
 
     debounceRef.current = setTimeout(async () => {
       setZipError('');
@@ -56,7 +56,11 @@ export default function SearchBar({ onSelect }) {
           setSuggestions([city]);
           setOpen(true);
         } else {
-          const results = await geocodeCity(query, country);
+          // Try with country filter first; fall back to global search if no results
+          let results = await geocodeCity(query, country);
+          if (results.length === 0 && country) {
+            results = await geocodeCity(query);
+          }
           setSuggestions(results);
           setOpen(results.length > 0);
         }
@@ -86,7 +90,7 @@ export default function SearchBar({ onSelect }) {
     onSelect(recent.lat, recent.lon, recent.name);
   }
 
-  const showRecents = focused && query.trim().length < 2 && recents.length > 0;
+  const showRecents = focused && query.trim().length < 3 && recents.length > 0;
 
   return (
     <div className="relative w-full max-w-md">
@@ -157,7 +161,7 @@ export default function SearchBar({ onSelect }) {
         </div>
       )}
 
-      {open && query.trim().length >= 2 && (
+      {open && query.trim().length >= 3 && (
         <ul className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden text-gray-800 text-sm border border-white/40">
           {suggestions.map((city, i) => (
             <li key={i}>
