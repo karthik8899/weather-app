@@ -1,6 +1,8 @@
+import { convertTemp, tempLabel } from '../utils/units';
+
 export default function HourlyForecast({ forecastData, unit }) {
   const slots = forecastData.list.slice(0, 8);
-  const unitLabel = unit === 'metric' ? '°C' : '°F';
+  const tLabel = tempLabel(unit);
 
   return (
     <div className="w-full">
@@ -24,8 +26,8 @@ export default function HourlyForecast({ forecastData, unit }) {
                 alt={slot.weather[0].description}
                 className="w-10 h-10"
               />
-              <p className="text-sm font-semibold">{Math.round(slot.main.temp)}{unitLabel}</p>
-              <p className="text-xs opacity-50">Feels {Math.round(slot.main.feels_like)}{unitLabel}</p>
+              <p className="text-sm font-semibold">{convertTemp(slot.main.temp, unit)}{tLabel}</p>
+              <p className="text-xs opacity-50">Feels {convertTemp(slot.main.feels_like, unit)}{tLabel}</p>
               <p className="text-xs opacity-60">{slot.pop > 0 ? `${Math.round(slot.pop * 100)}%🌧` : ''}</p>
             </div>
           );

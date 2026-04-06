@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentWeather, getForecast, getAirPollution } from '../services/weatherApi';
 
-export function useWeather(lat, lon, units = 'metric') {
+export function useWeather(lat, lon) {
   const [state, setState] = useState({ current: null, forecast: null, airQuality: null, loading: false, error: null });
 
   useEffect(() => {
@@ -13,8 +13,8 @@ export function useWeather(lat, lon, units = 'metric') {
       setState(s => ({ ...s, loading: true, error: null }));
       try {
         const [currentResult, forecastResult, aqResult] = await Promise.allSettled([
-          getCurrentWeather(lat, lon, units),
-          getForecast(lat, lon, units),
+          getCurrentWeather(lat, lon),
+          getForecast(lat, lon),
           getAirPollution(lat, lon),
         ]);
         if (currentResult.status === 'rejected') throw new Error(currentResult.reason.message);
@@ -28,7 +28,7 @@ export function useWeather(lat, lon, units = 'metric') {
 
     load();
     return () => { cancelled = true; };
-  }, [lat, lon, units]);
+  }, [lat, lon]);
 
   return state;
 }

@@ -1,3 +1,5 @@
+import { convertTemp, convertWind, tempLabel, windLabel } from '../utils/units';
+
 const bearings = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
 function formatTime(ts) {
@@ -8,8 +10,8 @@ export default function CurrentWeather({ data, unit }) {
   const { name, main, weather, wind, sys, visibility } = data;
   const icon = weather[0].icon;
   const description = weather[0].description;
-  const unitLabel = unit === 'metric' ? '°C' : '°F';
-  const windUnit = unit === 'metric' ? 'm/s' : 'mph';
+  const tLabel = tempLabel(unit);
+  const wLabel = windLabel(unit);
   const bearing = bearings[Math.round(wind.deg / 45) % 8];
 
   return (
@@ -25,22 +27,22 @@ export default function CurrentWeather({ data, unit }) {
           className="w-24 h-24 drop-shadow-lg"
         />
         <div>
-          <p className="text-8xl font-thin">{Math.round(main.temp)}{unitLabel}</p>
+          <p className="text-8xl font-thin">{convertTemp(main.temp, unit)}{tLabel}</p>
           <p className="text-xl capitalize opacity-80">{description}</p>
         </div>
       </div>
 
       <p className="text-base opacity-70 mb-6">
-        Feels like {Math.round(main.feels_like)}{unitLabel}
+        Feels like {convertTemp(main.feels_like, unit)}{tLabel}
       </p>
 
       <div className="grid grid-cols-4 gap-3 max-w-sm mx-auto">
         <StatCard label="Humidity" value={`${main.humidity}%`} icon="💧" />
-        <StatCard label="Wind" value={`${Math.round(wind.speed)} ${windUnit} ${bearing}`} icon="💨" />
+        <StatCard label="Wind" value={`${convertWind(wind.speed, unit)} ${wLabel} ${bearing}`} icon="💨" />
         <StatCard label="Visibility" value={`${(visibility / 1000).toFixed(1)} km`} icon="👁" />
         <StatCard label="Pressure" value={`${main.pressure} hPa`} icon="🌡" />
-        <StatCard label="High" value={`${Math.round(main.temp_max)}${unitLabel}`} icon="🔺" />
-        <StatCard label="Low" value={`${Math.round(main.temp_min)}${unitLabel}`} icon="🔻" />
+        <StatCard label="High" value={`${convertTemp(main.temp_max, unit)}${tLabel}`} icon="🔺" />
+        <StatCard label="Low" value={`${convertTemp(main.temp_min, unit)}${tLabel}`} icon="🔻" />
         <StatCard label="Sunrise" value={formatTime(sys.sunrise)} icon="🌅" />
         <StatCard label="Sunset" value={formatTime(sys.sunset)} icon="🌇" />
       </div>

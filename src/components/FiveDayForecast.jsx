@@ -1,6 +1,8 @@
+import { convertTemp, tempLabel } from '../utils/units';
+
 export default function FiveDayForecast({ forecastData, unit }) {
   const days = aggregateByDay(forecastData.list);
-  const unitLabel = unit === 'metric' ? '°C' : '°F';
+  const tLabel = tempLabel(unit);
 
   return (
     <div className="w-full">
@@ -21,9 +23,9 @@ export default function FiveDayForecast({ forecastData, unit }) {
             />
             <p className="text-xs opacity-70 flex-1 text-center capitalize hidden sm:block">{day.description}</p>
             <div className="flex gap-3 text-sm font-semibold">
-              <span className="text-blue-200">{Math.round(day.min)}{unitLabel}</span>
+              <span className="text-blue-200">{convertTemp(day.min, unit)}{tLabel}</span>
               <span>/</span>
-              <span>{Math.round(day.max)}{unitLabel}</span>
+              <span>{convertTemp(day.max, unit)}{tLabel}</span>
             </div>
           </div>
         ))}

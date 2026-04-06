@@ -1,17 +1,17 @@
 const BASE_URL = 'https://api.openweathermap.org';
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
-export async function getCurrentWeather(lat, lon, units = 'metric') {
+export async function getCurrentWeather(lat, lon) {
   const res = await fetch(
-    `${BASE_URL}/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}`
+    `${BASE_URL}/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
   );
   if (!res.ok) throw new Error('Failed to fetch current weather');
   return res.json();
 }
 
-export async function getForecast(lat, lon, units = 'metric') {
+export async function getForecast(lat, lon) {
   const res = await fetch(
-    `${BASE_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${units}&appid=${API_KEY}`
+    `${BASE_URL}/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
   );
   if (!res.ok) throw new Error('Failed to fetch forecast');
   return res.json();

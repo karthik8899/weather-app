@@ -19,7 +19,7 @@ export default function App() {
   const lat = override?.lat ?? geo.lat;
   const lon = override?.lon ?? geo.lon;
 
-  const { current, forecast, airQuality, loading, error } = useWeather(lat, lon, unit);
+  const { current, forecast, airQuality, loading, error } = useWeather(lat, lon);
 
   function handleCitySelect(lat, lon, name) {
     setOverride({ lat, lon, name });
