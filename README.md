@@ -2,7 +2,7 @@
 
 A modern React + Vite weather app with live conditions, hourly & 5-day forecasts, Air Quality Index, international postal code search, and dynamic glassmorphism UI.
 
-**Live:** https://weather-app-abc-afb6de60.vercel.app  
+**Live:** https://weather8899.vercel.app  
 **Repo:** https://github.com/karthik8899/weather-app
 
 ---
